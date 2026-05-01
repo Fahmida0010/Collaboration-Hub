@@ -1,18 +1,26 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
+
+const authRoutes = require("./routes/auth.routes");
+
 const app = express();
 
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
+
 app.use(express.json());
+app.use(cookieParser());
 
-app.post("/auth/login", (req, res) => {
-  const { email, password } = req.body;
 
-  if (email === "test@test.com") {
-    return res.json({ message: "Login success" });
-  }
+const workspaceRoutes = require("./routes/workspace.routes");
 
-  res.status(401).json({ message: "Invalid credentials" });
+app.use("/workspace", workspaceRoutes);
+
+app.use("/auth", authRoutes);
+
+app.listen(5000, () => {
+  console.log("Backend running on 5000");
 });
-
-app.listen(5000, () => console.log("Server running"));
