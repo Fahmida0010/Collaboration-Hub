@@ -1,55 +1,99 @@
-const jwt = require("jsonwebtoken");
+const prisma = require("../config/db");
+const bcrypt = require("bcryptjs");
+const { createToken } = require("../utils/jwt");
 
-const createToken = (user) => {
-  return jwt.sign(
-    { id: user.id, email: user.email },
-    process.env.JWT_ACCESS_SECRET,
-    { expiresIn: "7d" }
-  );
-};
-
+// REGISTER
 exports.register = async (req, res) => {
-  const { name, email, password } = req.body;
+  try {
+    const { name, email, password } = req.body;
 
-  // demo (replace with prisma)
-  const user = { id: 1, name, email };
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
 
-  const token = createToken(user);
+    if (existingUser) {
+      return res.status(400).json({ error: "User already exists" });
+    }
 
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: false,
-  });
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  res.json({ user });
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+      },
+    });
+
+    const token = createToken(user);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+    });
+
+    res.json({ message: "Register success", user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
+// LOGIN
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = { id: 1, email };
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
 
-  const token = createToken(user);
+    if (!user) {
+      return res.status(400).json({ error: "User not found" });
+    }
 
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: false,
-  });
+    const isMatch = await bcrypt.compare(password, user.password);
 
-  res.json({ user });
+    if (!isMatch) {
+      return res.status(400).json({ error: "Wrong password" });
+    }
+
+    const token = createToken(user);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+    });
+
+    res.json({ message: "Login success", user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
+// GOOGLE LOGIN (optional demo)
 exports.googleLogin = async (req, res) => {
-  const { email, name } = req.body;
+  try {
+    const { email, name } = req.body;
 
-  const user = { id: 1, email, name };
+    let user = await prisma.user.findUnique({
+      where: { email },
+    });
 
-  const token = createToken(user);
+    if (!user) {
+      user = await prisma.user.create({
+        data: { email, name },
+      });
+    }
 
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: false,
-  });
+    const token = createToken(user);
 
-  res.json({ user });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+    });
+
+    res.json({ message: "Google login success", user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };

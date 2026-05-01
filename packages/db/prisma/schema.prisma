@@ -43,24 +43,35 @@ model WorkspaceMember {
 
 // 3. Goals & Milestones
 model Goal {
-  id          String      @id @default(uuid())
+  id          String      @id @default(cuid())
   title       String
-  status      String      @default("To-Do")
-  dueDate     DateTime
+  status      String      // TODO | IN_PROGRESS | DONE
+  dueDate     DateTime?
   ownerId     String
   workspaceId String
-  owner       User        @relation(fields: [ownerId], references: [id])
-  workspace   Workspace   @relation(fields: [workspaceId], references: [id])
+
   milestones  Milestone[]
-  actionItems ActionItem[]
+  activities  Activity[]
+
+  createdAt   DateTime @default(now())
 }
 
 model Milestone {
-  id          String   @id @default(uuid())
-  title       String
-  progress    Int      @default(0) // 0-100 percentage
-  goalId      String
-  goal        Goal     @relation(fields: [goalId], references: [id])
+  id        String   @id @default(cuid())
+  title     String
+  progress  Int      // 0 - 100
+  goalId    String
+
+  goal      Goal @relation(fields: [goalId], references: [id])
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  message   String
+  goalId    String
+
+  goal      Goal @relation(fields: [goalId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 // 4. Announcements

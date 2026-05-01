@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { postData } from "@/lib/api";
-import { FaGoogle } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+import { signIn } from "next-auth/react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -10,6 +13,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [avatar, setAvatar] = useState(null);
+  const router = useRouter();
 
   // Register submit
   const handleRegister = async () => {
@@ -29,17 +33,17 @@ export default function RegisterPage() {
     );
 
     const data = await res.json();
-    console.log("Register:", data);
+
+    if (data.success) {
+      router.push("/dashboard");
+    } else {
+      alert(data.error);
+    }
   };
 
-  // Google login (demo / later OAuth)
-  const handleGoogle = async () => {
-    const res = await postData("/auth/google", {
-      email: "googleuser@gmail.com",
-      name: "Google User",
-    });
-
-    console.log("Google Login:", res);
+  // Google login 
+  const handleGoogle = () => {
+    signIn("google", { callbackUrl: "/dashboard" });
   };
 
   return (
@@ -49,7 +53,8 @@ export default function RegisterPage() {
 
         {/* Title */}
         <h1 className="text-2xl font-bold text-center mb-6">
-          Create Account
+          Welcome to  <span className="text-pink-400"> Collaboration Hub </span>
+          Create An Account
         </h1>
 
         {/* Profile Upload */}
@@ -60,14 +65,18 @@ export default function RegisterPage() {
               hidden
               onChange={(e) => setAvatar(e.target.files[0])}
             />
-            <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-600 overflow-hidden">
+            <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-600 overflow-hidden text-center">
               {avatar ? (
                 <img
                   src={URL.createObjectURL(avatar)}
                   className="w-full h-full object-cover"
+                  alt="avatar"
                 />
               ) : (
-                "Upload"
+                <div className="flex flex-col items-center justify-center">
+                  <span>Upload</span>
+                  <span>Photo</span>
+                </div>
               )}
             </div>
           </label>
@@ -99,7 +108,7 @@ export default function RegisterPage() {
             onClick={() => setShowPass(!showPass)}
             className="absolute right-3 top-2 text-sm text-blue-500 cursor-pointer"
           >
-            {showPass ? "Hide" : "Show"}
+            {showPass ? <FaEyeSlash /> : <FaEye />}
           </span>
         </div>
 
@@ -117,9 +126,10 @@ export default function RegisterPage() {
         {/* Google Login */}
         <button
           onClick={handleGoogle}
-          className="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white w-full p-2 rounded"
+          className="flex items-center justify-center gap-2
+           bg-gray-100 hover:bg-gray-200 text-black w-full p-2 rounded"
         >
-          <FaGoogle />
+          <FcGoogle />
           Continue with Google
         </button>
 

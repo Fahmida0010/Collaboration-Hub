@@ -14,12 +14,20 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+//   //workspace
+// const workspaceRoutes = require("./routes/workspace.routes");
+// app.use("/workspace", workspaceRoutes);
 
-const workspaceRoutes = require("./routes/workspace.routes");
+//  //goal & milestone
+// const goalRoutes = require("./routes/goal.routes");
+// app.use("/goal", goalRoutes);
 
-app.use("/workspace", workspaceRoutes);
-
+ //auth
 app.use("/auth", authRoutes);
+
+app.get("/", (req, res) => {
+  res.send("Backend is running on port 5000🚀");
+});
 
 app.listen(5000, () => {
   console.log("Backend running on 5000");
