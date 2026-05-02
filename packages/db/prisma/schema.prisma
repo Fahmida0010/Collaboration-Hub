@@ -7,27 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 1. User Model (Auth & Profile)
 model User {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  password      String
-  name          String?
-  avatar        String?        // Cloudinary URL thakbe
-  workspaces    WorkspaceMember[]
-  goals         Goal[]         // Goal owner
-  actionItems   ActionItem[]   // Assigned action items
-  comments      Comment[]
-}
-
-// 2. Workspace Model
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  image     String?
+  id       String  @id @default(uuid())
+  email    String  @unique
+  password String
+  name     String?
+  avatar   String?
 
   memberships Membership[]
+  goals       Goal[]       @relation("UserGoals")
+  actionItems ActionItem[]
+  comments    Comment[]
 }
 
 model Workspace {
@@ -37,18 +27,20 @@ model Workspace {
   color       String
   createdAt   DateTime @default(now())
 
-  memberships Membership[]
+  memberships   Membership[]
+  goals         Goal[] // ✅ added
+  announcements Announcement[] // ✅ added
 }
 
 model Membership {
-  id          String   @id @default(cuid())
-  role        Role     @default(MEMBER)
+  id   String @id @default(cuid())
+  role Role   @default(MEMBER)
 
   userId      String
   workspaceId String
 
-  user        User      @relation(fields: [userId], references: [id])
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
 
   @@unique([userId, workspaceId])
 }
@@ -58,68 +50,75 @@ enum Role {
   MEMBER
 }
 
-// 3. Goals & Milestones
 model Goal {
-  id          String      @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
-  status      String      // TODO | IN_PROGRESS | DONE
+  status      String
   dueDate     DateTime?
   ownerId     String
   workspaceId String
 
+  owner     User      @relation("UserGoals", fields: [ownerId], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+
   milestones  Milestone[]
   activities  Activity[]
+  actionItems ActionItem[] // ✅ added reverse relation
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model Milestone {
-  id        String   @id @default(cuid())
-  title     String
-  progress  Int      // 0 - 100
-  goalId    String
+  id       String @id @default(cuid())
+  title    String
+  progress Int
+  goalId   String
 
-  goal      Goal @relation(fields: [goalId], references: [id])
+  goal Goal @relation(fields: [goalId], references: [id])
 }
 
 model Activity {
   id        String   @id @default(cuid())
   message   String
   goalId    String
-
-  goal      Goal @relation(fields: [goalId], references: [id])
   createdAt DateTime @default(now())
+
+  goal Goal @relation(fields: [goalId], references: [id])
 }
 
-// 4. Announcements
 model Announcement {
-  id          String    @id @default(uuid())
-  title       String
-  content     String    // Rich text
-  isPinned    Boolean   @default(false)
+  id       String  @id @default(uuid())
+  title    String
+  content  String
+  isPinned Boolean @default(false)
+
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  comments    Comment[]
+
+  comments Comment[]
 }
 
-// 5. Action Items (Kanban logic)
 model ActionItem {
-  id          String   @id @default(uuid())
-  title       String
-  priority    String   @default("Medium")
-  status      String   @default("To-Do")
-  dueDate     DateTime
-  assigneeId  String
-  goalId      String?
-  assignee    User     @relation(fields: [assigneeId], references: [id])
-  goal        Goal?    @relation(fields: [goalId], references: [id])
+  id       String   @id @default(uuid())
+  title    String
+  priority String   @default("Medium")
+  status   String   @default("To-Do")
+  dueDate  DateTime
+
+  assigneeId String
+  goalId     String?
+
+  assignee User  @relation(fields: [assigneeId], references: [id])
+  goal     Goal? @relation(fields: [goalId], references: [id])
 }
 
 model Comment {
-  id             String       @id @default(uuid())
-  text           String
+  id   String @id @default(uuid())
+  text String
+
   userId         String
   announcementId String
-  user           User         @relation(fields: [userId], references: [id])
-  announcement   Announcement @relation(fields: [announcementId], references: [id])
+
+  user         User         @relation(fields: [userId], references: [id])
+  announcement Announcement @relation(fields: [announcementId], references: [id])
 }

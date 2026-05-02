@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
+
 const authRoutes = require("./routes/auth.routes");
 //  const announcementRoutes = require("./routes/announcementRoutes");
 
@@ -16,20 +17,13 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-//   //workspace
-// const workspaceRoutes = require("./routes/workspace.routes");
-// app.use("/workspace", workspaceRoutes);
+const workspace = require("./routes/workspace");
 
-//  //goal & milestone
-// const goalRoutes = require("./routes/goal.routes");
-// app.use("/goal", goalRoutes);
+//workspace
+app.use("/workspace", workspace);
 
 
 
-
-//  //announcement
-//  app.use("/api/announcements", announcementRoutes);
- 
  //auth
 app.use("/auth", authRoutes);
 

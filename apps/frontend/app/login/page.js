@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { postData } from "@/lib/api";
 import { FcGoogle } from "react-icons/fc";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
@@ -15,22 +14,37 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   // Email/Password login
-  const handleLogin = async () => {
-    try {
-      const data = await postData("/auth/login", {
-        email,
-        password,
-      });
+ const handleLogin = async () => {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+        credentials: "include",
+      }
+    );
 
-      console.log("Login success:", data);
+    const data = await res.json();
 
-      // redirect to dashboard
+    console.log("Login response:", data);
+
+    if (data.success) {
       router.push("/dashboard");
-    } catch (err) {
-      console.log("Login error:", err);
+    } else {
+      alert(data.error || "Login failed");
     }
-  };
 
+  } catch (err) {
+    console.log("Login error:", err);
+  }
+};
   // Google OAuth login
   const handleGoogleLogin = async () => {
     await signIn("google", {

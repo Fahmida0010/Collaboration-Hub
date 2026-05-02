@@ -5,59 +5,114 @@ const prisma = new PrismaClient();
 exports.createGoal = async (req, res) => {
   const { title, status, dueDate, workspaceId } = req.body;
 
-  const goal = await prisma.goal.create({
-    data: {
-      title,
-      status,
-      dueDate: dueDate ? new Date(dueDate) : null,
-      workspaceId,
-      ownerId: "demo-user", // later JWT user
-    },
-  });
+  try {
+    const goal = await prisma.goal.create({
+      data: {
+        title,
+        status,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        workspaceId,
+        ownerId: req.user.id, // ✅ from JWT middleware (cookie verified user)
+      },
+    });
 
-  res.json(goal);
+    res.status(201).json(goal);
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to create goal",
+      details: error.message,
+    });
+  }
 };
 
 // GET GOALS
 exports.getGoals = async (req, res) => {
   const { workspaceId } = req.params;
 
-  const goals = await prisma.goal.findMany({
-    where: { workspaceId },
-    include: {
-      milestones: true,
-      activities: true,
-    },
-  });
+  try {
+    const goals = await prisma.goal.findMany({
+      where: {
+        workspaceId,
+        ownerId: req.user.id, // ✅ only logged-in user's goals
+      },
+      include: {
+        milestones: true,
+        activities: true,
+      },
+    });
 
-  res.json(goals);
+    res.json(goals);
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to fetch goals",
+      details: error.message,
+    });
+  }
 };
 
 // ADD MILESTONE
 exports.addMilestone = async (req, res) => {
   const { title, goalId, progress } = req.body;
 
-  const milestone = await prisma.milestone.create({
-    data: {
-      title,
-      goalId,
-      progress: Number(progress),
-    },
-  });
+  try {
+    // optional security check (important)
+    const goal = await prisma.goal.findFirst({
+      where: {
+        id: goalId,
+        ownerId: req.user.id,
+      },
+    });
 
-  res.json(milestone);
+    if (!goal) {
+      return res.status(403).json({ error: "Not allowed" });
+    }
+
+    const milestone = await prisma.milestone.create({
+      data: {
+        title,
+        goalId,
+        progress: Number(progress),
+      },
+    });
+
+    res.status(201).json(milestone);
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to add milestone",
+      details: error.message,
+    });
+  }
 };
 
 // ADD ACTIVITY
 exports.addActivity = async (req, res) => {
   const { message, goalId } = req.body;
 
-  const activity = await prisma.activity.create({
-    data: {
-      message,
-      goalId,
-    },
-  });
+  try {
+    // optional security check
+    const goal = await prisma.goal.findFirst({
+      where: {
+        id: goalId,
+        ownerId: req.user.id,
+      },
+    });
 
-  res.json(activity);
+    if (!goal) {
+      return res.status(403).json({ error: "Not allowed" });
+    }
+
+    const activity = await prisma.activity.create({
+      data: {
+        message,
+        goalId,
+      },
+    });
+
+    res.status(201).json(activity);
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to add activity",
+      details: error.message,
+    });
+  }
 };

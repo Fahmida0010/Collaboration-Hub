@@ -1,3 +1,11 @@
+const express = require("express");
+const router = express.Router();
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
+const authMiddleware = require("../middleware/auth.middleware");
+
+ router.use(authMiddleware);
+ 
  //create workspace
 router.post("/", async (req, res) => {
   const { name, description, color } = req.body;
@@ -42,6 +50,19 @@ router.get("/", async (req, res) => {
 router.post("/invite", async (req, res) => {
   const { email, workspaceId, role } = req.body;
 
+//check role
+  const membership = await prisma.membership.findFirst({
+  where: {
+    userId: req.user.id,
+    workspaceId,
+  },
+  
+});
+
+if (membership.role !== "ADMIN") {
+  return res.status(403).json({ error: "Not allowed" });
+}
+
   const user = await prisma.user.findUnique({
     where: { email },
   });
@@ -71,3 +92,10 @@ router.post("/switch", async (req, res) => {
 
   res.json({ message: "Switched" });
 });
+
+// test route
+router.get("/", (req, res) => {
+  res.json({ message: "Workspace route working" });
+});
+
+module.exports = router;

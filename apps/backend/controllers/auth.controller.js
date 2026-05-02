@@ -24,7 +24,7 @@ exports.register = async (req, res) => {
         password: hashedPassword,
       },
     });
-
+    
     const token = createToken(user);
 
     res.cookie("token", token, {
@@ -32,7 +32,10 @@ exports.register = async (req, res) => {
       secure: false,
     });
 
-    res.json({ message: "Register success", user });
+    res.json({ 
+       success: true,
+      message: "Register success",
+       user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -64,36 +67,33 @@ exports.login = async (req, res) => {
       secure: false,
     });
 
-    res.json({ message: "Login success", user });
+    res.json({ 
+       success: true,
+      message: "Login success",
+       user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// GOOGLE LOGIN (optional demo)
+// GOOGLE LOGIN 
 exports.googleLogin = async (req, res) => {
-  try {
-    const { email, name } = req.body;
+  const { name, email, image } = req.body;
 
-    let user = await prisma.user.findUnique({
-      where: { email },
+  let user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        avatar: image,
+        password: "google",
+      },
     });
-
-    if (!user) {
-      user = await prisma.user.create({
-        data: { email, name },
-      });
-    }
-
-    const token = createToken(user);
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-    });
-
-    res.json({ message: "Google login success", user });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
+
+  res.json({ success: true, user });
 };

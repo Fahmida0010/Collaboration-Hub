@@ -1,65 +1,76 @@
-// GET
-export const getAll = async (req, res) => {
-  const data = await prisma.announcement.findMany({
-    orderBy: [
-      { isPinned: "desc" },
-      { createdAt: "desc" },
-    ],
-    include: {
-      reactions: true,
-      comments: true,
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
+
+// CREATE ANNOUNCEMENT
+exports.createAnnouncement = async (req, res) => {
+  const { title, content, workspaceId } = req.body;
+
+  const announcement = await prisma.announcement.create({
+    data: {
+      title,
+      content,
+      workspaceId,
+      isPinned: false,
     },
+  });
+
+  res.json(announcement);
+};
+
+// GET ANNOUNCEMENTS
+exports.getAnnouncements = async (req, res) => {
+  const { workspaceId } = req.params;
+
+  const data = await prisma.announcement.findMany({
+    where: { workspaceId },
+    include: {
+      comments: true,
+      reactions: true,
+    },
+    orderBy: { createdAt: "desc" },
   });
 
   res.json(data);
 };
 
-// CREATE
-export const create = async (req, res) => {
-  const userId = req.headers["x-user-id"]; 
+// PIN ANNOUNCEMENT
+exports.pinAnnouncement = async (req, res) => {
+  const { id } = req.params;
 
-  const { content } = req.body;
-
-  if (!userId) return res.status(401).json({ error: "Unauthorized" });
-
-  const newItem = await prisma.announcement.create({
-    data: {
-      content,
-      userId,
-    },
+  const updated = await prisma.announcement.update({
+    where: { id },
+    data: { isPinned: true },
   });
 
-  res.json(newItem);
+  res.json(updated);
 };
 
-// REACTION
-export const react = async (req, res) => {
-  const userId = req.headers["x-user-id"];
-  const { emoji } = req.body;
+// ADD COMMENT
+exports.addComment = async (req, res) => {
+  const { text, announcementId } = req.body;
 
-  await prisma.reaction.create({
-    data: {
-      emoji,
-      userId,
-      announcementId: req.params.id,
-    },
-  });
-
-  res.json({ success: true });
-};
-
-// COMMENT
-export const comment = async (req, res) => {
-  const userId = req.headers["x-user-id"];
-  const { text } = req.body;
-
-  await prisma.comment.create({
+  const comment = await prisma.comment.create({
     data: {
       text,
-      userId,
-      announcementId: req.params.id,
+      announcementId,
+      userId: req.user.id,
     },
   });
 
-  res.json({ success: true });
+  res.json(comment);
+};
+
+// ADD REACTION
+exports.addReaction = async (req, res) => {
+  const { emoji, announcementId } = req.body;
+
+  const reaction = await prisma.reaction.create({
+    data: {
+      emoji,
+      announcementId,
+      userId: req.user.id,
+    },
+  });
+
+  res.json(reaction);
 };

@@ -6,9 +6,11 @@ const {
   addMilestone,
   addActivity,
 } = require("../controllers/goal.controller");
+const auth = require("../middleware/auth.middleware");
 
-router.post("/", createGoal);
-router.get("/:workspaceId", getGoals);
+
+router.post("/",authMiddleware, createGoal);
+router.get("/:workspaceId",authMiddleware, getGoals);
 router.post("/milestone", addMilestone);
 router.post("/activity", addActivity);
 

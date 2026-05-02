@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { postData } from "@/lib/api";
 import { FcGoogle } from "react-icons/fc";
 import { signIn } from "next-auth/react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -17,20 +16,22 @@ export default function RegisterPage() {
 
   // Register submit
   const handleRegister = async () => {
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("email", email);
-    formData.append("password", password);
-    if (avatar) formData.append("avatar", avatar);
-
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
-      {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      }
-    );
+ const res = await fetch(
+  `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name,
+      email,
+      password,
+      avatar,
+    }),
+    credentials: "include",
+  }
+);
 
     const data = await res.json();
 
