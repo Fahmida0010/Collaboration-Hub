@@ -3,6 +3,8 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
 const authRoutes = require("./routes/auth.routes");
+//  const announcementRoutes = require("./routes/announcementRoutes");
+
 
 const app = express();
 
@@ -22,6 +24,12 @@ app.use(cookieParser());
 // const goalRoutes = require("./routes/goal.routes");
 // app.use("/goal", goalRoutes);
 
+
+
+
+//  //announcement
+//  app.use("/api/announcements", announcementRoutes);
+ 
  //auth
 app.use("/auth", authRoutes);
 
