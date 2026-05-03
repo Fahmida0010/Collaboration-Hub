@@ -79,7 +79,7 @@ exports.login = async (req, res) => {
 
 // GOOGLE LOGIN 
 exports.googleLogin = async (req, res) => {
-  const { name, email, image } = req.body;
+  const { name, email, avatar } = req.body;
 
   let user = await prisma.user.findUnique({
     where: { email },

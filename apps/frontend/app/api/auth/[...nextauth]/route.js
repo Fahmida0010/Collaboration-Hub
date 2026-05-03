@@ -36,7 +36,7 @@ const handler = NextAuth({
         return true;
       } catch (err) {
         console.log("Google signIn error:", err);
-        return true; // login allow koro still
+        return true; 
       }
     },
   },

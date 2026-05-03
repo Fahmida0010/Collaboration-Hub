@@ -1,7 +1,8 @@
 {
-  "tasks": {
-    "dev": {
-      "cache": false
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "dist/**"]
     }
   }
 }
