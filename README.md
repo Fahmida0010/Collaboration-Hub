@@ -80,7 +80,7 @@ NEXT_PUBLIC_SOCKET_URL=[http://localhost:5000](http://localhost:5000)
 ### 1️⃣ Clone the project
 
 ```bash
-git clone https://github.com/your-username/your-repo.git
+git clone https://github.com/Fahmida0010/Collaboration-Hub.git
 cd your-repo
 ````
 
