@@ -8,13 +8,13 @@ const {
   addComment,
   addReaction,
 } = require("../controllers/announcement.controller");
+const authMiddleware = require("../middleware/auth.middleware");
 
-const auth = require("../middleware/auth.middleware");
 
-router.post("/", auth, createAnnouncement);
-router.get("/:workspaceId", auth, getAnnouncements);
-router.patch("/pin/:id", auth, pinAnnouncement);
-router.post("/comment", auth, addComment);
-router.post("/reaction", auth, addReaction);
+router.post("/", authMiddleware, createAnnouncement);
+router.get("/:workspaceId", authMiddleware, getAnnouncements);
+router.patch("/pin/:id", authMiddleware, pinAnnouncement);
+router.post("/comment", authMiddleware, addComment);
+router.post("/reaction", authMiddleware, addReaction);
 
 module.exports = router;

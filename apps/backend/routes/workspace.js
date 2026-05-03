@@ -8,6 +8,7 @@ const authMiddleware = require("../middleware/auth.middleware");
  
  //create workspace
 router.post("/", async (req, res) => {
+  try {
   const { name, description, color } = req.body;
   const userId = req.user.id;
 
@@ -26,6 +27,10 @@ router.post("/", async (req, res) => {
   });
 
   res.json(workspace);
+    } catch (err) {
+    console.error("CREATE ERROR:", err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // user workspace
@@ -93,9 +98,5 @@ router.post("/switch", async (req, res) => {
   res.json({ message: "Switched" });
 });
 
-// test route
-router.get("/", (req, res) => {
-  res.json({ message: "Workspace route working" });
-});
 
 module.exports = router;

@@ -31,7 +31,7 @@ export default function DashboardPage() {
 
   const fetchWorkspaces = async () => {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/workspace`,
+      `${process.env.NEXT_PUBLIC_API_URL}/dashboard`,
       { credentials: "include" }
     );
     const data = await res.json();

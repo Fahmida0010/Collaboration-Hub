@@ -13,6 +13,7 @@ model User {
   password String
   name     String?
   avatar   String?
+  createdAt DateTime @default(now())
 
   memberships Membership[]
   goals       Goal[]       @relation("UserGoals")

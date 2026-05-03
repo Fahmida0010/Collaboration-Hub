@@ -3,7 +3,12 @@ const prisma = new PrismaClient();
 
 // CREATE ANNOUNCEMENT
 exports.createAnnouncement = async (req, res) => {
+    console.log(" BACKEND HIT");
   const { title, content, workspaceId } = req.body;
+
+  console.log("BODY:", req.body);
+console.log("USER:", req.user);
+try {
 
   const announcement = await prisma.announcement.create({
     data: {
@@ -14,7 +19,11 @@ exports.createAnnouncement = async (req, res) => {
     },
   });
 
+   console.log(" CREATED:", announcement);
   res.json(announcement);
+  } catch (err) {
+  console.error("CREATE ERROR:", err);
+  res.status(500).json({ error: err.message });
 };
 
 // GET ANNOUNCEMENTS
@@ -74,3 +83,4 @@ exports.addReaction = async (req, res) => {
 
   res.json(reaction);
 };
+

@@ -18,35 +18,22 @@ import {
 
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { user, fetchUser, logout } = useAuthStore();
 
-  const [user, setUser] = useState(null);
   const [open, setOpen] = useState(false);
-
-  const { theme, setTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
-
-  //  JWT user load
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => setUser(data.user || null))
-      .catch(() => setUser(null));
+    setMounted(true);
+    fetchUser();
   }, []);
 
-  const handleLogout = async () => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    setUser(null);
-  };
+  if (!mounted) return null;
 
   const navLinks = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard, protected: true },
@@ -56,22 +43,17 @@ export default function Navbar() {
     { name: "Tasks", path: "/tasks", icon: CheckSquare },
   ];
 
-  if (!mounted) return null;
-
   return (
-    <nav className="bg-white dark:bg-gray-900 shadow-md px-4 py-3">
+    <nav className="bg-white dark:bg-gray-900 text-black dark:text-white shadow-md px-4 py-3 transition-colors">
 
-      {/* TOP BAR */}
       <div className="flex items-center justify-between">
 
-        {/* Logo */}
         <h1 className="text-xl font-bold text-blue-500">
           CollabHub
         </h1>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-6">
-
           {navLinks.map((item, i) => {
             if (item.protected && !user) return null;
 
@@ -96,32 +78,31 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Right Controls */}
+        {/* Right */}
         <div className="flex items-center gap-3">
 
           {/* Theme */}
           <button
             onClick={() =>
-              setTheme(theme === "light" ? "dark" : "light")
+              setTheme(resolvedTheme === "light" ? "dark" : "light")
             }
-            className="p-2 rounded-lg border dark:border-gray-700"
+            className="p-2 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
           >
-            {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+            {resolvedTheme === "light" ? <Moon size={18} /> : <Sun size={18} />}
           </button>
 
           {/* User */}
           <div className="hidden md:flex items-center gap-3">
-
             {user ? (
               <>
                 <Link href="/profile">
-                  <div className="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold cursor-pointer">
+                  <div className="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
                     {user.name?.charAt(0)}
                   </div>
                 </Link>
 
                 <button
-                  onClick={handleLogout}
+                  onClick={logout}
                   className="flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded-lg"
                 >
                   <LogOut size={16} />
@@ -137,7 +118,7 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile */}
           <div className="md:hidden">
             {open ? (
               <X onClick={() => setOpen(false)} />
@@ -148,7 +129,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* MOBILE MENU */}
+      {/* Mobile menu */}
       {open && (
         <div className="md:hidden mt-4 space-y-2">
 
@@ -179,7 +160,7 @@ export default function Navbar() {
                 </Link>
 
                 <button
-                  onClick={handleLogout}
+                  onClick={logout}
                   className="flex items-center gap-2 p-3 text-red-500"
                 >
                   <LogOut size={18} />
@@ -193,6 +174,7 @@ export default function Navbar() {
                 </div>
               </Link>
             )}
+
           </div>
         </div>
       )}

@@ -11,9 +11,11 @@ export default function CreateAnnouncement() {
     await postData("/announcements", {
       title,
       content,
-      workspaceId: "workspace-1",
+      workspaceId,
     });
 
+      console.log("STATUS:", res?.status);
+  console.log("RESPONSE:", res);
     alert("Announcement created");
   };
 

@@ -18,28 +18,43 @@ export default function WorkspacePage() {
   }, []);
 
   const fetchWorkspaces = async () => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/workspace`,
-      { credentials: "include" }
-    );
-    const data = await res.json();
-    setWorkspaces(data);
-  };
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/workspace`,
+    { credentials: "include" }
+  );
+
+  const data = await res.json();
+
+  console.log("WORKSPACE API RESPONSE:", data);
+
+  // FIX HERE (robust handling)
+  setWorkspaces(Array.isArray(data) ? data : data?.data || []);
+};
 
   // CREATE
-  const createWorkspace = async () => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/workspace`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, description, color }),
-    });
+ const createWorkspace = async () => {
+  if (!name) return alert("Name required");
 
-    setName("");
-    setDescription("");
-    fetchWorkspaces();
-  };
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/workspace`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, description, color }),
+  });
 
+  const data = await res.json();
+
+  console.log("CREATE RESPONSE:", data);
+
+  if (!res.ok) {
+    alert(data.error || "Failed to create workspace");
+    return;
+  }
+
+  setName("");
+  setDescription("");
+  fetchWorkspaces();
+};
   // SWITCH
   const switchWorkspace = async (id) => {
     setSelectedWs(id);
@@ -88,21 +103,24 @@ export default function WorkspacePage() {
       </div>
 
       {/* LIST */}
-      <div className="grid grid-cols-3 gap-4">
-        {workspaces.map((ws) => (
-          <div
-            key={ws.id}
-            onClick={() => switchWorkspace(ws.id)}
-            style={{ borderColor: ws.color }}
-            className={`p-4 border-2 rounded cursor-pointer ${
-              selectedWs === ws.id ? "bg-blue-50" : ""
-            }`}
-          >
-            <h3>{ws.name}</h3>
-            <p>{ws.description}</p>
-          </div>
-        ))}
+     <div className="grid grid-cols-3 gap-4">
+  {Array.isArray(workspaces) &&
+    workspaces.map((ws) => (
+      <div
+        key={ws.id}
+        onClick={() => switchWorkspace(ws.id)}
+        className={`p-4 border rounded cursor-pointer ${
+          selectedWs === ws.id ? "bg-blue-100" : "bg-white"
+        }`}
+        style={{ borderColor: ws.color }}
+      >
+        <h3 className="font-bold">{ws.name}</h3>
+        <p className="text-sm text-gray-500">
+          {ws.description || "No description"}
+        </p>
       </div>
+    ))}
+</div>
 
       {/* INVITE */}
       {selectedWs && (
