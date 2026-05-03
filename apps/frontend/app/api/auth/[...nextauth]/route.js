@@ -8,23 +8,38 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
- 
+
   callbacks: {
-  async signIn({ user }) {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/google`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: user.name,
-        email: user.email,
-        image: user.image,
-      }),
-    });
-    return true;
+    async signIn({ user }) {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/google`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: user.name || "",
+              email: user.email,
+              image: user.image || "",
+            }),
+          }
+        );
+
+        const data = await res.json();
+
+        if (!data?.success) {
+          console.log("Google DB save failed:", data);
+        }
+
+        return true;
+      } catch (err) {
+        console.log("Google signIn error:", err);
+        return true; // login allow koro still
+      }
+    },
   },
-}
 });
 
 export { handler as GET, handler as POST };

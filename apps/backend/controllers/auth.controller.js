@@ -22,6 +22,7 @@ exports.register = async (req, res) => {
         name,
         email,
         password: hashedPassword,
+        avatar,
       },
     });
     
@@ -89,11 +90,18 @@ exports.googleLogin = async (req, res) => {
       data: {
         name,
         email,
-        avatar: image,
+        avatar: avatar,
         password: "google",
       },
     });
   }
 
+    // token add 
+  const token = createToken(user);
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: false,
+  });
   res.json({ success: true, user });
 };

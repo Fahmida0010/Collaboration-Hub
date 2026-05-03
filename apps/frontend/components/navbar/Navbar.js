@@ -92,31 +92,54 @@ export default function Navbar() {
           </button>
 
           {/* User */}
-          <div className="hidden md:flex items-center gap-3">
-            {user ? (
-              <>
-                <Link href="/profile">
-                  <div className="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
-                    {user.name?.charAt(0)}
-                  </div>
-                </Link>
+      <div className="hidden md:flex items-center gap-3">
+  {user ? (
+    <>
+      <Link href="/profile">
+        <div className="w-9 h-9 rounded-full overflow-hidden cursor-pointer">
 
-                <button
-                  onClick={logout}
-                  className="flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded-lg"
-                >
-                  <LogOut size={16} />
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link href="/login">
-                <button className="bg-blue-500 text-white px-3 py-1 rounded-lg">
-                  Login
-                </button>
-              </Link>
-            )}
-          </div>
+          {user?.avatar ? (
+            <img
+              src={
+                user.avatar.startsWith("http")
+                  ? user.avatar
+                  : `${process.env.NEXT_PUBLIC_API_URL}${user.avatar}`
+              }
+              alt="avatar"
+              className="w-full h-full object-cover"
+            />
+          ) : user?.image ? (
+            // Google login image (NextAuth / OAuth)
+            <img
+              src={user.image}
+              alt="google avatar"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-blue-500 text-white flex items-center justify-center font-bold uppercase">
+              {user.name?.charAt(0).toUpperCase()}
+            </div>
+          )}
+
+        </div>
+      </Link>
+
+      <button
+        onClick={logout}
+        className="flex items-center gap-1 bg-red-500 text-white px-3 py-1 rounded-lg"
+      >
+        <LogOut size={16} />
+        Logout
+      </button>
+    </>
+  ) : (
+    <Link href="/login">
+      <button className="bg-blue-500 text-white px-3 py-1 rounded-lg">
+        Login
+      </button>
+    </Link>
+  )}
+</div>
 
           {/* Mobile */}
           <div className="md:hidden">
