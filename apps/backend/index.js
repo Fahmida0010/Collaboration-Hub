@@ -4,7 +4,7 @@ const cookieParser = require("cookie-parser");
 
 
 const authRoutes = require("./routes/auth.routes");
-//  const announcementRoutes = require("./routes/announcementRoutes");
+
 
 
 const app = express();
@@ -31,6 +31,6 @@ app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
 });
 
-app.listen((process.env.PORT || 5000), () => {
-  console.log("Backend running on (process.env.PORT || 5000)");
+app.listen(process.env.PORT || 5000, () => {
+  console.log("Backend is running");
 });
