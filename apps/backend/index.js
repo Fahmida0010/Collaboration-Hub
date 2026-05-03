@@ -28,9 +28,9 @@ app.use("/workspace", workspace);
 app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Backend is running on port 5000🚀");
+  res.send("Backend is running 🚀");
 });
 
-app.listen(5000, () => {
-  console.log("Backend running on 5000");
+app.listen((process.env.PORT || 5000), () => {
+  console.log("Backend running on (process.env.PORT || 5000)");
 });
