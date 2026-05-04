@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { postData } from "@/lib/api";
+import { postData } from "../../lib/api";
 
 export default function CreateAnnouncement() {
   const [title, setTitle] = useState("");

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getData } from "@/lib/api";
+import { getData } from "../../lib/api";
 
 export default function AnnouncementDetails({ params }) {
   const [item, setItem] = useState(null);
