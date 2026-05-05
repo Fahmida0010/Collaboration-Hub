@@ -3,6 +3,7 @@ const prisma = new PrismaClient();
 
 // CREATE GOAL
 exports.createGoal = async (req, res) => {
+    console.log("USER:", req.user);
   const { title, status, dueDate, workspaceId } = req.body;
 
   try {
@@ -61,6 +62,7 @@ exports.addMilestone = async (req, res) => {
         id: goalId,
         ownerId: req.user.id,
       },
+      
     });
 
     if (!goal) {
