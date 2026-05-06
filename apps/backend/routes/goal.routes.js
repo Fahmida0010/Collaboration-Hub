@@ -1,12 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const {
-  createGoal,
-  getGoals,
-  addMilestone,
-  addActivity,
-} = require("../controllers/goal.controller");
 const authMiddleware = require("../middleware/auth.middleware");
+const { getGoals, createGoal, addMilestone, addActivity } = require("../controllers/goal.controllers");
 
 
 

@@ -13,7 +13,7 @@ exports.createGoal = async (req, res) => {
         status,
         dueDate: dueDate ? new Date(dueDate) : null,
         workspaceId,
-        ownerId: req.user.id, //  from JWT middleware (cookie verified user)
+        ownerId: req.user.id, 
       },
     });
 
@@ -34,7 +34,7 @@ exports.getGoals = async (req, res) => {
     const goals = await prisma.goal.findMany({
       where: {
         workspaceId,
-        ownerId: req.user.id, //  only logged-in user's goals
+        ownerId: req.user.id, 
       },
       include: {
         milestones: true,
