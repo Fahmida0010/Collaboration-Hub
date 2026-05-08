@@ -42,7 +42,7 @@ exports.getGoals = async (req, res) => {
       },
     });
 
-    res.json(goals);
+    res.json(goals || []);
   } catch (error) {
     res.status(500).json({
       error: "Failed to fetch goals",
